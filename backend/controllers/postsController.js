@@ -115,7 +115,7 @@ export const deletePost = async (req, res, next) => {
   }
 };
 
-//TODO get tags, get posts by tags, create comments
+
 export const updatePost = [
   validateNewPost,
   async (req, res, next) => {
