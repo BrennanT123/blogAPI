@@ -8,6 +8,9 @@ import { fileURLToPath } from "url";
 import authRouter from "./routes/authRoutes.js";
 import postsRouter from "./routes/postsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
+import cors from "cors";
+
+
 
 import { PrismaClient, Prisma } from "./prisma/generated/prisma/index.js";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
@@ -17,6 +20,12 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 dotenv.config();
 
 const app = express();
+//setting up cors
+app.use(cors());
+
+
+
+
 
 // JSON parsing middleware
 app.use(express.json());
@@ -27,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/users', usersRouter);
+
 
 // __dirname workaround for ES modules
 const __filename = fileURLToPath(import.meta.url);

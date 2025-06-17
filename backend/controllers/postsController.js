@@ -22,17 +22,21 @@ export const getPosts = async (req, res, next) => {
       },
     });
     if (posts.length === 0) {
-      throw new CustomErr(404, "No posts found");
+      return res.status(404).json({ errors: [{ message: "No posts found" }] });
     }
     res.status(200).json(posts);
   } catch (err) {
     console.log(err);
     if (err.code === "P2025") {
       //prisma error for "record not found"
-      return next(new CustomErr(404, "No posts found"));
+      return res.status(404).json({ errors: [{ message: "No posts found" }] });
     }
 
-    return next(new CustomErr(500, "failed to get posts for unknown reasons"));
+    return res
+      .status(500)
+      .json({
+        errors: [{ message: "Failed to get posts for unknown reason" }],
+      });
   }
 };
 
@@ -48,7 +52,12 @@ export const createPost = [
     }
 
     if (!req.user?.id) {
-      return next(new CustomErr(401, "User not authenticated"));
+      return res
+        .status(401)
+        .json({ errors: [{ message: "User not authenticated" }] });
+    }
+    if (!req.isAdmin) {
+      return res.status(403).json({ errors: [{ message: "Access denied" }] });
     }
 
     try {
@@ -68,10 +77,17 @@ export const createPost = [
       console.error(err);
       if (err.code === "P2025") {
         //prisma error for "record not found"
-        return next(new CustomErr(404, "No posts found"));
+
+        return res
+          .status(404)
+          .json({ errors: [{ message: "No posts found" }] });
       }
 
-      next(new CustomErr(500, "Failed to create post for unknown reasons"));
+      next(
+        res.status(500).json({
+          errors: [{ message: "Failed to create post for unknown reasons" }],
+        })
+      );
     }
   },
 ];
@@ -84,10 +100,10 @@ export const deletePost = async (req, res, next) => {
   }
   const post = await prisma.post.findUnique({ where: { id: Number(postId) } });
   if (!post) {
-    return next(new CustomErr(404, "Post not found"));
+    return res.status(404).json({ errors: [{ message: "No post found" }] });
   }
   if (post.authorId !== req.user.id) {
-    return next(new CustomErr(403, "Unauthorized"));
+    return res.status(403).json({ errors: [{ message: "Unauthorized" }] });
   }
   try {
     const deletedPost = await prisma.post.delete({
@@ -106,7 +122,7 @@ export const deletePost = async (req, res, next) => {
     if (err.code === "P2025") {
       //prisma error for "record not found"
 
-      return next(new CustomErr(404, "No posts found"));
+      return res.status(404).json({ errors: [{ message: "No posts found" }] });
     }
 
     return res.status(500).json({
@@ -114,7 +130,6 @@ export const deletePost = async (req, res, next) => {
     });
   }
 };
-
 
 export const updatePost = [
   validateNewPost,
@@ -126,7 +141,11 @@ export const updatePost = [
 
     const postId = Number(req.body.postId);
     if (!postId || isNaN(postId)) {
-      return next(new CustomErr(400, "Invalid or missing postId"));
+      return next(
+        res
+          .status(400)
+          .json({ errors: [{ message: "Invalid or missing postID" }] })
+      );
     }
 
     try {
@@ -135,11 +154,19 @@ export const updatePost = [
       });
 
       if (!doesPostExist) {
-        return next(new CustomErr(404, "No posts found"));
+        return next(
+          res.status(404).json({ errors: [{ message: "No posts found" }] })
+        );
       }
 
       if (doesPostExist.authorId !== req.user.id) {
-        return next(new CustomErr(403, "User is not authorized to edit post"));
+        return next(
+          res
+            .status(403)
+            .json({
+              errors: [{ message: "User is not authorized to edit post" }],
+            })
+        );
       }
 
       const newPost = await prisma.post.update({
@@ -158,12 +185,14 @@ export const updatePost = [
     } catch (err) {
       if (err.code === "P2025") {
         //prisma error for "record not found"
-        return next(new CustomErr(404, "No posts found"));
+        return next(
+          res.status(404).json({ errors: [{ message: "No posts found" }] })
+        );
       }
 
       console.error(err);
       return next(
-        new CustomErr(500, "Failed to update post for unknown reasons")
+        res.status(500).json({ errors: [{ message: "Server error" }] })
       );
     }
   },
@@ -219,7 +248,7 @@ export const createNewComment = [
       });
     } catch (err) {
       console.error(err);
-      next(new CustomErr(500, "Failed to create comment"));
+      return res.status(500).json({ errors: [{ message: "Server error" }] });
     }
   },
 ];
