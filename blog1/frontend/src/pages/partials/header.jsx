@@ -37,9 +37,10 @@ function Header({ isLoggedIn, setIsLoggedIn, isAdmin, setAdmin,loading, error, s
             Logout
           </button>
           {isAdmin && (
-            <Link to="/newPost" className={headerStyles.headerNewPost}>
+            <><Link to="/newPost" className={headerStyles.headerNewPost}>
               New Post
             </Link>
+            <Link to="/allPosts" className={headerStyles.headerNewPost}>Edit Posts</Link></>
           )}
         </div>
       ) : (

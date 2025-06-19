@@ -20,7 +20,7 @@ export const useFetchPosts = (setLoading, setError) => {
 
         if (err.response.data.errors) {
           const messages = err.response.data.errors
-            .map((e) => e.message)
+            .map((e) => e.msg)
             .join("\n");
           setError(messages);
         } else {
@@ -59,9 +59,7 @@ export const useLoginUser = (setLoading, setError) => {
       return true;
     } catch (err) {
       if (err.response.data.errors) {
-        const messages = err.response.data.errors
-          .map((e) => e.messages)
-          .join("\n");
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
         console.log(err.response.data.errors);
         setError(messages);
       } else {
@@ -104,7 +102,7 @@ export const useAuthenticateAdmin = (setLoading, setError, setAdmin) => {
     } catch (err) {
       console.log(err);
       const messages =
-        err.response?.data?.errors?.map((e) => e.message).join("\n") ||
+        err.response?.data?.errors?.map((e) => e.msg).join("\n") ||
         "Admin Authentication failed.";
       setError(messages);
       setAdmin(false);
@@ -139,9 +137,7 @@ export const fetchUserInfo = (setLoading, setError, setAdmin) => {
       return name;
     } catch (err) {
       if (err.response.data.errors) {
-        const messages = err.response.data.errors
-          .map((e) => e.message)
-          .join("\n");
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
         setError(messages);
       } else {
         setError("Server error.");
@@ -174,9 +170,7 @@ export const useRegisterUser = (setLoading, setError) => {
       return response.data;
     } catch (err) {
       if (err.response.data.errors) {
-        const messages = err.response.data.errors
-          .map((e) => e.message)
-          .join("\n");
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
         setError(messages);
       } else {
         setError("Registration failed.");
@@ -212,14 +206,11 @@ export const useNewPost = (setLoading, setError) => {
 
       return response.data;
     } catch (err) {
-      console.log(err);
       if (err.response?.data?.errors) {
-        const messages = err.response.data.errors
-          .map((e) => e.message)
-          .join("\n");
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
         setError(messages);
-      } else if (err.message) {
-        const messages = err.message;
+      } else if (err.msg) {
+        const messages = err.msg;
         setError(messages);
       } else {
         setError("Could not make new post.");
@@ -243,9 +234,7 @@ export const fetchCommentUserData = (setLoading, setError) => {
       return response.data;
     } catch (err) {
       if (err.response.data.errors) {
-        const messages = err.response.data.errors
-          .map((e) => e.message)
-          .join("\n");
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
         setError(messages);
       } else {
         setError("Server error.");
@@ -258,4 +247,122 @@ export const fetchCommentUserData = (setLoading, setError) => {
   };
 
   return { findUser };
+};
+
+export const useNewComment = (setLoading, setError) => {
+  const [newComment, setNewComment] = useState(null);
+  const makeNewComment = async (content, guestAuthor, postId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${API_LINK}/posts/newComment`,
+        {
+          content: content,
+          guestAuthor: guestAuthor,
+          post: postId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setNewComment(response.data);
+
+      return response.data;
+    } catch (err) {
+      console.log(err);
+      if (err.response?.data?.errors) {
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
+        console.log(messages);
+        setError(messages);
+      } else if (err.msg) {
+        const messages = err.msg;
+        setError(messages);
+      } else {
+        setError("Could not make new comment.");
+      }
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { makeNewComment };
+};
+
+export const useEditPost = (setLoading, setError) => {
+  const [editedPost, setEditedPost] = useState({
+    title: "",
+    content: "",
+  });
+
+  const editPost = async (title, content, postId, publishedStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${API_LINK}/posts/update`,
+        {
+          title: title,
+          content: content,
+          postId: postId,
+          published: publishedStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setEditedPost(response.data);
+      return response.data;
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
+        setError(messages);
+      } else if (err.msg) {
+        const messages = err.msg;
+        setError(messages);
+      } else {
+        setError("Could not edit post.");
+      }
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { editPost };
+};
+
+export const useDeletePost = (setLoading, setError) => {
+  const deletePostById = async (postId) => {
+    try {
+      const token = localStorage.getItem("token");
+      console.log(postId);
+      await axios.delete(`${API_LINK}/posts/delete`, {
+        data: { postId }, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return;
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
+        setError(messages);
+      } else if (err.msg) {
+        const messages = err.msg;
+        setError(messages);
+      } else {
+        setError("Could not delete post.");
+      }
+      console.log(err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { deletePostById };
 };

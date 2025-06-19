@@ -4,17 +4,23 @@ import Error from "../error/error";
 import { Link } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 
+
 function Home() {
-    const { loading, setLoading, error, setError } = useOutletContext();
+  const { loading, setLoading, error, setError } = useOutletContext();
   const { data: posts } = useFetchPosts(setLoading, setError);
 
   if (loading) return <span> Loading...</span>;
   if (error) return <Error />;
-  if (!posts || posts.length === 0) return <span>No posts available.</span>;
+
+
+  if (!posts || posts.length === 0) return <span>No posts published.</span>;
+
+  const publishedPosts = posts.filter((post) => post.published);
+
   return (
     <div className={homeStyles.allPostsContainer}>
       <h1>All Posts</h1>
-      {posts.map((post) => (
+      {publishedPosts.map((post) => (
         <Link
           to="/posts"
           state={{ post }}
@@ -22,7 +28,15 @@ function Home() {
           key={post.id}
         >
           <h2>{post.title}</h2>
-          <span>{post.createdAt}</span>
+          <span>
+            {new Date(post.createdAt).toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </span>
           <p>{post.content.slice(0, 30)}...</p>
         </Link>
       ))}

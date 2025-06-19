@@ -26,7 +26,6 @@ export const getPosts = async (req, res, next) => {
     }
     res.status(200).json(posts);
   } catch (err) {
-    console.log(err);
     if (err.code === "P2025") {
       //prisma error for "record not found"
       return res.status(404).json({ errors: [{ message: "No posts found" }] });
@@ -74,7 +73,6 @@ export const createPost = [
         post: newPost,
       });
     } catch (err) {
-      console.error(err);
       if (err.code === "P2025") {
         //prisma error for "record not found"
 
@@ -102,8 +100,9 @@ export const deletePost = async (req, res, next) => {
   if (!post) {
     return res.status(404).json({ errors: [{ message: "No post found" }] });
   }
+  
   if (post.authorId !== req.user.id) {
-    return res.status(403).json({ errors: [{ message: "Unauthorized" }] });
+    return res.status(403).json({ errors: [{ msg: "Unauthorized" }] });
   }
   try {
     const deletedPost = await prisma.post.delete({
@@ -117,7 +116,6 @@ export const deletePost = async (req, res, next) => {
       deletedPost,
     });
   } catch (err) {
-    console.error(err);
 
     if (err.code === "P2025") {
       //prisma error for "record not found"
@@ -134,6 +132,8 @@ export const deletePost = async (req, res, next) => {
 export const updatePost = [
   validateNewPost,
   async (req, res, next) => {
+    
+
     const validateErrors = validationResult(req);
     if (!validateErrors.isEmpty()) {
       return res.status(400).json({ errors: validateErrors.array() });
@@ -141,6 +141,7 @@ export const updatePost = [
 
     const postId = Number(req.body.postId);
     if (!postId || isNaN(postId)) {
+        
       return next(
         res
           .status(400)
@@ -158,7 +159,8 @@ export const updatePost = [
           res.status(404).json({ errors: [{ message: "No posts found" }] })
         );
       }
-
+      console.log(doesPostExist.authorId);
+      console.log(req.user.id);
       if (doesPostExist.authorId !== req.user.id) {
         return next(
           res
@@ -175,6 +177,7 @@ export const updatePost = [
           title: req.body.title,
           content: req.body.content,
           updatedAt: new Date(),
+          published: req.body.published,
         },
       });
 
@@ -190,7 +193,6 @@ export const updatePost = [
         );
       }
 
-      console.error(err);
       return next(
         res.status(500).json({ errors: [{ message: "Server error" }] })
       );
@@ -200,11 +202,13 @@ export const updatePost = [
 export const createNewComment = [
   validateNewComment,
   async (req, res, next) => {
+    
     const validateErrors = validationResult(req);
+
     if (!validateErrors.isEmpty()) {
+
       return res.status(400).json({ errors: validateErrors.array() });
     }
-
     const postId = Number(req.body.post);
     if (!postId || isNaN(postId)) {
       return res.status(400).json({ error: "Invalid or missing post ID" });
@@ -217,7 +221,7 @@ export const createNewComment = [
 
       if (!req.user?.id) {
         //Guest user
-        const guestName = req.body.author;
+        const guestName = req.body.guestAuthor;
         if (!guestName) {
           return res
             .status(400)
@@ -247,7 +251,6 @@ export const createNewComment = [
         comment: newComment,
       });
     } catch (err) {
-      console.error(err);
       return res.status(500).json({ errors: [{ message: "Server error" }] });
     }
   },

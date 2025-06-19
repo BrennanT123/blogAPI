@@ -19,13 +19,13 @@ export const loginUser = async (req, res, next) => {
     if (!user) {
       return res
         .status(401)
-        .json({ errors: [{ message: "Invalid email or password" }] });
+        .json({ errors: [{ msg: "Invalid email or password" }] });
     }
     const checkPassMatch = await bcrypt.compare(password, user.hash);
     if (!checkPassMatch) {
       return res
         .status(401)
-        .json({ errors: [{ message: "Invalid email or password" }] });
+        .json({ errors: [{ msg: "Invalid email or password" }] });
     }
     const token = jwt.sign(
       { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName },
@@ -34,13 +34,12 @@ export const loginUser = async (req, res, next) => {
     );
 
     res.status(200).json({
-      message: "login succesful",
+      msg: "login succesful",
       token,
     });
   } catch (err) {
-    console.log(err);
     return res.status(400).json({
-      errors: [{ message: "There was an error logging in" }],
+      errors: [{ msg: "There was an error logging in" }],
     });
   }
 };
@@ -48,22 +47,27 @@ export const loginUser = async (req, res, next) => {
 //Will be used to authenticate user for protected routes (creating posts, etc..)
 export const authenticateUser = (req, res, next) => {
   //Get auth header value
+    
   const bearerHeader = req.headers["authorization"];
+          console.log("here2");
   //check if bearer is undefined
+  console.log(bearerHeader);
   if (typeof bearerHeader !== "undefined") {
     //Split at the space
     const bearer = bearerHeader.split(" ");
+        console.log("here");
     //Get token from array
     const bearerToken = bearer[1];
     try {
+      
       const decodedToken = jwt.verify(bearerToken, process.env.JWT_SECRET);
       req.user = decodedToken;
-      //return res.status(200).json({ message: 'Authentication succesful.', user: req.user });
+      //return res.status(200).json({ msg: 'Authentication succesful.', user: req.user });
       next();
     } catch (err) {
       return res
         .status(403)
-        .json({ errors: [{ message: "Invalid or expired token" }] });
+        .json({ errors: [{ msg: "Invalid or expired token" }] });
     }
   } else {
     res.sendStatus(403);
@@ -74,29 +78,37 @@ export const authenticateUser = (req, res, next) => {
 export const authenticateUserLoose = (req, res, next) => {
   //Get auth header value
   const bearerHeader = req.headers["authorization"];
+
   //check if bearer is undefined
   if (typeof bearerHeader !== "undefined") {
     //Split at the space
     const bearer = bearerHeader.split(" ");
     //Get token from array
     const bearerToken = bearer[1];
+    
     try {
       const decodedToken = jwt.verify(bearerToken, process.env.JWT_SECRET);
       req.user = decodedToken;
-      //return res.status(200).json({ message: 'Authentication succesful.', user: req.user });
+       
+      //return res.status(200).json({ msg: 'Authentication succesful.', user: req.user });
       next();
-    } catch (err) {}
+    } catch (err) {
+      next();
+      
+    }
   } else {
     next();
+    
   }
 };
 
 export const authenticateAdmin = async (req, res) => {
+  
   try {
     if (!req.user?.id) {
       return res
         .status(401)
-        .json({ errors: [{ message: "User not authenticated" }] });
+        .json({ errors: [{ msg: "User not authenticated" }] });
     }
 
     const user = await prisma.user.findUnique({
@@ -104,28 +116,28 @@ export const authenticateAdmin = async (req, res) => {
       select: { id: true, email: true, membershipStatus: true },
     });
     if (!user) {
-      return res.status(404).json({ errors: [{ message: "User not found" }] });
+      return res.status(404).json({ errors: [{ msg: "User not found" }] });
     }
     return res.status(200).json({
       isAdmin: user.membershipStatus === true,
     });
 
   } catch (err) {
-    console.error(err);
     return res
       .status(500)
-      .json({ errors: [{ message: "Internal server error" }] });
+      .json({ errors: [{ msg: "Internal server error" }] });
   }
 };
 
 
 
 export const authenticateAdminStrict = async (req, res, next) => {
+  
   try {
     if (!req.user?.id) {
       return res
         .status(401)
-        .json({ errors: [{ message: "User not authenticated" }] });
+        .json({ errors: [{ msg: "User not authenticated" }] });
     }
 
     const user = await prisma.user.findUnique({
@@ -133,16 +145,15 @@ export const authenticateAdminStrict = async (req, res, next) => {
       select: { id: true, email: true, membershipStatus: true },
     });
     if (!user) {
-      return res.status(404).json({ errors: [{ message: "User not found" }] });
+      return res.status(404).json({ errors: [{ msg: "User not found" }] });
     }
      req.isAdmin = user.membershipStatus === true;
        return next();
 
   } catch (err) {
-    console.error(err);
     return res
       .status(500)
-      .json({ errors: [{ message: "Internal server error" }] });
+      .json({ errors: [{ msg: "Internal server error" }] });
   }
 };
 //Not used since you plan on storing it in local storage. If you stored it using cookies then youd need something here.

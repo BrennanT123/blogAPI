@@ -27,18 +27,16 @@ export const createUser = [
           lastName: req.body.last_name,
         },
       });
-console.log("New user created:", newUser);
 
-      res.status(201).json({ message: "User created successfully." });
+      res.status(201).json({ msg: "User created successfully." });
     } catch (err) {
       if (err.code === 'P2002' && err.meta?.target?.includes('email')) {
         return res.status(400).json({
-          errors: [{ message: "Email is already registered." }],
+          errors: [{ msg: "Email is already registered." }],
         });
       }
 
-      console.error(err);
-              return next(res.status(400).json({ errors: [{ message: "Something went wrong" }] }));
+              return next(res.status(400).json({ errors: [{ msg: "Something went wrong" }] }));
 
     }
   },
@@ -50,7 +48,6 @@ console.log("New user created:", newUser);
 export const postUserData = async (req, res, next) => {
   
   try {
-  console.log(req.body.id)
     const user = await prisma.user.findUnique({
       where: {
         id: Number(req.body.id),
@@ -61,13 +58,13 @@ export const postUserData = async (req, res, next) => {
       },
     });
     if (!user) {
-      return res.status(404).json({ errors: [{ message: "User not found" }] });
+      return res.status(404).json({ errors: [{ msg: "User not found" }] });
     }
     return res.status(200).json(user);
   } catch {
     return res
       .status(500)
-      .json({ errors: [{ message: "Internal server error" }] });
+      .json({ errors: [{ msg: "Internal server error" }] });
   }
 };
 
@@ -90,7 +87,7 @@ export const getLoggedInUserName = async (req, res) => {
         const decodedToken = jwt.verify(bearerToken, process.env.JWT_SECRET);
         req.user = decodedToken;
     
-        //return res.status(200).json({ message: 'Authentication succesful.', user: req.user });
+        //return res.status(200).json({ msg: 'Authentication succesful.', user: req.user });
         return res.status(200).json({
           name: req.user.firstName + " " + req.user.lastName 
         });

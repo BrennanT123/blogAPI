@@ -8,8 +8,8 @@ const postsRouter = express.Router();
 
 postsRouter.post("/newPost",authCtr.authenticateUser, authCtr.authenticateAdminStrict, postCtr.createPost);
 postsRouter.get("/", postCtr.getPosts);
-postsRouter.delete("/delete",postCtr.deletePost);
-postsRouter.put("/update",authCtr.authenticateUser, postCtr.updatePost);
+postsRouter.delete("/delete",authCtr.authenticateUser, authCtr.authenticateAdminStrict,postCtr.deletePost);
+postsRouter.put("/update",authCtr.authenticateUser,authCtr.authenticateAdminStrict, postCtr.updatePost);
 postsRouter.post("/newComment",authCtr.authenticateUserLoose,postCtr.createNewComment);
 
 

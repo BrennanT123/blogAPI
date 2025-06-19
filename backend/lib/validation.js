@@ -107,7 +107,7 @@ export const validateNewComment = [
     .withMessage(`Comment ${alphanumErr}`)
     .isLength({ min: 1, max: 500 })
     .withMessage(`Comment ${commentLengthErr}`),
-  body("author").custom((value, { req }) => {
+  body("guestAuthor").custom((value, { req }) => {
     if (!req.user) {
       if (!value || value.trim() === "") {
         throw new Error("Author name is required for guest comments");
