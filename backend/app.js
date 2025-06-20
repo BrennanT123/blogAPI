@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import authRouter from "./routes/authRoutes.js";
 import postsRouter from "./routes/postsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
-import cors from "cors";
+import cors from "cors"; // used for api calls from a different orign
 
 
 
@@ -21,7 +21,15 @@ dotenv.config();
 
 const app = express();
 //setting up cors
-app.use(cors());
+
+const corsOptions = {
+    origin: process.env.FRONTEND_URL,
+    optionsSuccessStatus: 200,
+    credentials: true,
+}
+
+app.use(cors(corsOptions));
+
 
 
 
@@ -43,7 +51,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-// Set EJS as the view engine
+// Set EJS as the view engine - You do not use this in this app 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
