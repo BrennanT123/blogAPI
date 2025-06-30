@@ -25,6 +25,16 @@ const app = express();
 app.set('trust proxy', 1);
 
 
+const corsOptions = {
+    origin: process.env.FRONTEND_URL,
+    optionsSuccessStatus: 200,
+    credentials: true,
+}
+
+app.use(cors(corsOptions));
+
+
+
 //Railway db setup
 import { execSync } from "child_process";
 
@@ -47,15 +57,6 @@ try {
 
 
 //setting up cors
-
-const corsOptions = {
-    origin: process.env.FRONTEND_URL,
-    optionsSuccessStatus: 200,
-    credentials: true,
-}
-
-app.use(cors(corsOptions));
-
 
 
 
