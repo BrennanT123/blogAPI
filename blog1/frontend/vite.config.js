@@ -5,9 +5,9 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   preview: {
-    allowedHosts: ["https://frontend-production-c81e.up.railway.app/"],
+    allowedHosts: ["frontend-production-c81e.up.railway.app"],
   },
   server: {
-    allowedHosts: ["https://frontend-production-c81e.up.railway.app/"],
+    allowedHosts: ["frontend-production-c81e.up.railway.app"],
   },
 });
