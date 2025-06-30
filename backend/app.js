@@ -20,6 +20,32 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 dotenv.config();
 
 const app = express();
+
+//CRITICAL NEEDED FOR RAILWAY
+app.set('trust proxy', 1);
+
+
+//Railway db setup
+import { execSync } from "child_process";
+
+try {
+  if (process.env.NODE_ENV === "production") {
+    console.log("Running Prisma migration at runtime...");
+
+    if (
+      process.env.RAILWAY_STATIC_URL ||
+      process.env.NODE_ENV === "production"
+    ) {
+      execSync("npx prisma migrate deploy", { stdio: "inherit" });
+    }
+  }
+} catch (e) {
+  console.error("Prisma migration failed:", e);
+}
+
+
+
+
 //setting up cors
 
 const corsOptions = {
