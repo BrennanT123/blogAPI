@@ -1,1 +1,4 @@
-export const API_LINK = "http://localhost:3000/api"
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+
+export const API_LINK = backendUrl;
