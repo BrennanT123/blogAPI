@@ -24,7 +24,7 @@ function AllPosts() {
   };
   return (
     <div className={homeStyles.allPostsContainer}>
-      <h1>All Posts</h1>
+      <h1>Edit posts</h1>
       {posts.map((post) => (
         <div className={homeStyles.postContainer} key={post.id}>
           <h2>{post.title}</h2>

@@ -40,7 +40,7 @@ function Header({ isLoggedIn, setIsLoggedIn, isAdmin, setAdmin,loading, error, s
             <><Link to="/newPost" className={headerStyles.headerNewPost}>
               New Post
             </Link>
-            <Link to="/allPosts" className={headerStyles.headerNewPost}>Edit Posts</Link></>
+            <Link to="/editPosts" className={headerStyles.headerNewPost}>Edit Posts</Link></>
           )}
         </div>
       ) : (

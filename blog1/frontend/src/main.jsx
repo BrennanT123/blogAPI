@@ -10,7 +10,7 @@ import Home from "./pages/home/home.jsx";
 import LoginPage from "./pages/login/login.jsx";
 import NewPosts from "./pages/newpost/newPost.jsx";
 import Register from "./pages/register/register.jsx";
-import AllPosts from "./pages/allPosts/allposts.jsx";
+import AllPosts from "./pages/allPosts/editPosts.jsx";
 import EditPosts from "./pages/editPost/editpost.jsx";
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       { path: "login", element: <LoginPage /> },
       { path: "newPost", element: <NewPosts /> },
       {path: "register", element: <Register />},
-      {path: "allPosts", element: <AllPosts />},
+      {path: "editPosts", element: <AllPosts />},
       {path: "editPosts/:postId",element: <EditPosts />}
     ],
   },
