@@ -3,11 +3,19 @@ import passport from "passport";
 
 import { validateNewPost, validateNewComment } from "../lib/validation.js";
 import { PrismaClient } from "../prisma/generated/prisma/index.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import CustomErr from "../lib/customerrors.js";
+import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";  
 
 const prisma = new PrismaClient();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 
 //returns the posts, the author for the post, and all the comments associated with it
 export const getPosts = async (req, res, next) => {
@@ -41,8 +49,10 @@ export const getPosts = async (req, res, next) => {
 
 //creates a new post
 export const createPost = [
+   upload.single("image"),
   validateNewPost,
   async (req, res, next) => {
+     console.log("here");
     const validateErrors = validationResult(req);
     if (!validateErrors.isEmpty()) {
       return res.status(400).json({
@@ -58,13 +68,38 @@ export const createPost = [
     if (!req.isAdmin) {
       return res.status(403).json({ errors: [{ message: "Access denied" }] });
     }
+        let imageUrl = null;
+    if (req.file) {
+      try {
+       
+        const streamUpload = () => {
+          return new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: "blog_posts" },
+              (error, result) => {
+                if (result) resolve(result);
+                else reject(error);
+              }
+            );
+            stream.end(req.file.buffer); 
+          });
+        };
 
+        const uploadResult = await streamUpload();
+        imageUrl = uploadResult.secure_url;
+      } catch (error) {
+        return res
+          .status(500)
+          .json({ errors: [{ message: "Image upload failed" }] });
+      }
+    }
     try {
       const newPost = await prisma.post.create({
         data: {
           title: req.body.title,
           content: req.body.content,
           authorId: req.user.id,
+          imageUrl: imageUrl || null,
         },
       });
 

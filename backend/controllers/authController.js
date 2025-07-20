@@ -49,13 +49,10 @@ export const authenticateUser = (req, res, next) => {
   //Get auth header value
     
   const bearerHeader = req.headers["authorization"];
-          console.log("here2");
   //check if bearer is undefined
-  console.log(bearerHeader);
   if (typeof bearerHeader !== "undefined") {
     //Split at the space
     const bearer = bearerHeader.split(" ");
-        console.log("here");
     //Get token from array
     const bearerToken = bearer[1];
     try {

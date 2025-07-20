@@ -186,15 +186,18 @@ export const useRegisterUser = (setLoading, setError) => {
 
 export const useNewPost = (setLoading, setError) => {
   const [newPost, setNewPost] = useState(null);
-  const makeNewPost = async (title, content) => {
+  const makeNewPost = async (title, content, image) => {
     try {
       const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      if (image) {
+        formData.append("image", image); // 👈 name must match multer's .single("image")
+      }
+
       const response = await axios.post(
-        `${API_LINK}/posts/newPost`,
-        {
-          title: title,
-          content: content,
-        },
+        `${API_LINK}/posts/newPost`,formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -341,7 +344,7 @@ export const useDeletePost = (setLoading, setError) => {
       const token = localStorage.getItem("token");
       console.log(postId);
       await axios.delete(`${API_LINK}/posts/delete`, {
-        data: { postId }, 
+        data: { postId },
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -32,6 +32,7 @@ model Post {
   id        Int       @id @default(autoincrement())
   title     String
   content   String
+  imageUrl  String?   @db.VarChar(255)
   author    User      @relation(fields: [authorId], references: [id])
   authorId  Int
   comments  Comment[]
