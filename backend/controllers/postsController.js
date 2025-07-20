@@ -27,7 +27,7 @@ export const getSinglePost = async (req, res, next) => {
       where: { id: postId },
       include: {
         comments: true,
-      }
+      },
     });
     res.status(200).json(post);
   } catch (err) {
@@ -74,7 +74,6 @@ export const createPost = [
   upload.single("image"),
   validateNewPost,
   async (req, res, next) => {
-    console.log("here");
     const validateErrors = validationResult(req);
     if (!validateErrors.isEmpty()) {
       return res.status(400).json({
@@ -185,6 +184,7 @@ export const deletePost = async (req, res, next) => {
 };
 
 export const updatePost = [
+  upload.single("image"),
   validateNewPost,
   async (req, res, next) => {
     const validateErrors = validationResult(req);
@@ -193,13 +193,41 @@ export const updatePost = [
     }
 
     const postId = Number(req.body.postId);
+    
     if (!postId || isNaN(postId)) {
+  
       return next(
         res
           .status(400)
           .json({ errors: [{ message: "Invalid or missing postID" }] })
       );
     }
+    let imageUrl = null;
+  
+    if (req.file) {
+      try {
+        const streamUpload = () => {
+          return new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: "blog_posts" },
+              (error, result) => {
+                if (result) resolve(result);
+                else reject(error);
+              }
+            );
+            stream.end(req.file.buffer);
+          });
+        };
+
+        const uploadResult = await streamUpload();
+        imageUrl = uploadResult.secure_url;
+      } catch (error) {
+        return res
+          .status(500)
+          .json({ errors: [{ message: "Image upload failed" }] });
+      }
+    }
+
 
     try {
       const doesPostExist = await prisma.post.findUnique({
@@ -211,8 +239,6 @@ export const updatePost = [
           res.status(404).json({ errors: [{ message: "No posts found" }] })
         );
       }
-      console.log(doesPostExist.authorId);
-      console.log(req.user.id);
       if (doesPostExist.authorId !== req.user.id) {
         return next(
           res.status(403).json({
@@ -228,6 +254,7 @@ export const updatePost = [
           content: req.body.content,
           updatedAt: new Date(),
           published: req.body.published,
+          imageUrl: imageUrl || doesPostExist.imageUrl,
         },
       });
 
