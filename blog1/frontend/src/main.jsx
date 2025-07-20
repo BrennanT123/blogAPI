@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import Error from "./pages/error/error.jsx";
 import ShowPost from "./pages/post/showPost.jsx";
-
 import "./index.css";
 import App from "./App.jsx";
 import Home from "./pages/home/home.jsx";
@@ -12,6 +11,7 @@ import NewPosts from "./pages/newpost/newPost.jsx";
 import Register from "./pages/register/register.jsx";
 import AllPosts from "./pages/allPosts/editPosts.jsx";
 import EditPosts from "./pages/editPost/editpost.jsx";
+import "../src/App.css"
 const router = createBrowserRouter([
   {
     path: "/",

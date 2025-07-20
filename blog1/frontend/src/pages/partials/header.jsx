@@ -3,9 +3,21 @@ import headerStyles from "../styles/headerStyles.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthenticateAdmin } from "../../utl/hooks";
 
-
-function Header({ isLoggedIn, setIsLoggedIn, isAdmin, setAdmin,loading, error, setLoading,setError  }) {
- const { authenticateAdmin } = useAuthenticateAdmin(setLoading, setError, setAdmin);
+function Header({
+  isLoggedIn,
+  setIsLoggedIn,
+  isAdmin,
+  setAdmin,
+  loading,
+  error,
+  setLoading,
+  setError,
+}) {
+  const { authenticateAdmin } = useAuthenticateAdmin(
+    setLoading,
+    setError,
+    setAdmin
+  );
 
   const navigate = useNavigate();
 
@@ -24,12 +36,13 @@ function Header({ isLoggedIn, setIsLoggedIn, isAdmin, setAdmin,loading, error, s
   return (
     <div className={headerStyles.headerContainer}>
       <div className={headerStyles.headerBlogName}>Blog</div>
-      <Link to="/" className={headerStyles.headerHomeLink}>
-        {" "}
-        Home
-      </Link>
+
       {isLoggedIn ? (
         <div>
+          <Link to="/" className={headerStyles.headerHomeLink}>
+            {" "}
+            Home
+          </Link>
           <button
             onClick={handleLogout}
             className={headerStyles.headerLoginButton}
@@ -37,16 +50,26 @@ function Header({ isLoggedIn, setIsLoggedIn, isAdmin, setAdmin,loading, error, s
             Logout
           </button>
           {isAdmin && (
-            <><Link to="/newPost" className={headerStyles.headerNewPost}>
-              New Post
-            </Link>
-            <Link to="/editPosts" className={headerStyles.headerNewPost}>Edit Posts</Link></>
+            <>
+              <Link to="/newPost" className={headerStyles.headerNewPost}>
+                New Post
+              </Link>
+              <Link to="/editPosts" className={headerStyles.headerNewPost}>
+                Edit Posts
+              </Link>
+            </>
           )}
         </div>
       ) : (
-        <Link to="/login" className={headerStyles.headerLogin}>
-          Login
-        </Link>
+        <div>
+          <Link to="/" className={headerStyles.headerHomeLink}>
+            {" "}
+            Home
+          </Link>
+          <Link to="/login" className={headerStyles.headerLogin}>
+            Login
+          </Link>
+        </div>
       )}
     </div>
   );
