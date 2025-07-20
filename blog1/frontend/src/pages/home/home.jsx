@@ -22,7 +22,7 @@ function Home() {
       <h1>All Posts</h1>
       {publishedPosts.map((post) => (
         <Link
-          to="/posts"
+          to={`/post/${post.id}`}
           state={{ post }}
           className={homeStyles.postContainer}
           key={post.id}

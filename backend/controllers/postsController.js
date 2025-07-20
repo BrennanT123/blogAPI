@@ -4,7 +4,7 @@ import passport from "passport";
 import { validateNewPost, validateNewComment } from "../lib/validation.js";
 import { PrismaClient } from "../prisma/generated/prisma/index.js";
 import { v2 as cloudinary } from "cloudinary";
-import multer from "multer";  
+import multer from "multer";
 
 const prisma = new PrismaClient();
 cloudinary.config({
@@ -16,6 +16,28 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+export const getSinglePost = async (req, res, next) => {
+  const postId = Number(req.params.postId);
+  if (!postId || isNaN(postId)) {
+    return res.status(400).json({ error: "Invalid or missing post ID" });
+  }
+
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+    res.status(200).json(post);
+  } catch (err) {
+    if (err.code === "P2025") {
+      //prisma error for "record not found"
+      return res.status(404).json({ errors: [{ message: "No post found" }] });
+    }
+
+    return res.status(500).json({
+      errors: [{ message: "Failed to get post for unknown reason" }],
+    });
+  }
+};
 
 //returns the posts, the author for the post, and all the comments associated with it
 export const getPosts = async (req, res, next) => {
@@ -39,20 +61,18 @@ export const getPosts = async (req, res, next) => {
       return res.status(404).json({ errors: [{ message: "No posts found" }] });
     }
 
-    return res
-      .status(500)
-      .json({
-        errors: [{ message: "Failed to get posts for unknown reason" }],
-      });
+    return res.status(500).json({
+      errors: [{ message: "Failed to get posts for unknown reason" }],
+    });
   }
 };
 
 //creates a new post
 export const createPost = [
-   upload.single("image"),
+  upload.single("image"),
   validateNewPost,
   async (req, res, next) => {
-     console.log("here");
+    console.log("here");
     const validateErrors = validationResult(req);
     if (!validateErrors.isEmpty()) {
       return res.status(400).json({
@@ -68,10 +88,9 @@ export const createPost = [
     if (!req.isAdmin) {
       return res.status(403).json({ errors: [{ message: "Access denied" }] });
     }
-        let imageUrl = null;
+    let imageUrl = null;
     if (req.file) {
       try {
-       
         const streamUpload = () => {
           return new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
@@ -81,7 +100,7 @@ export const createPost = [
                 else reject(error);
               }
             );
-            stream.end(req.file.buffer); 
+            stream.end(req.file.buffer);
           });
         };
 
@@ -135,7 +154,7 @@ export const deletePost = async (req, res, next) => {
   if (!post) {
     return res.status(404).json({ errors: [{ message: "No post found" }] });
   }
-  
+
   if (post.authorId !== req.user.id) {
     return res.status(403).json({ errors: [{ msg: "Unauthorized" }] });
   }
@@ -151,7 +170,6 @@ export const deletePost = async (req, res, next) => {
       deletedPost,
     });
   } catch (err) {
-
     if (err.code === "P2025") {
       //prisma error for "record not found"
 
@@ -167,8 +185,6 @@ export const deletePost = async (req, res, next) => {
 export const updatePost = [
   validateNewPost,
   async (req, res, next) => {
-    
-
     const validateErrors = validationResult(req);
     if (!validateErrors.isEmpty()) {
       return res.status(400).json({ errors: validateErrors.array() });
@@ -176,7 +192,6 @@ export const updatePost = [
 
     const postId = Number(req.body.postId);
     if (!postId || isNaN(postId)) {
-        
       return next(
         res
           .status(400)
@@ -198,11 +213,9 @@ export const updatePost = [
       console.log(req.user.id);
       if (doesPostExist.authorId !== req.user.id) {
         return next(
-          res
-            .status(403)
-            .json({
-              errors: [{ message: "User is not authorized to edit post" }],
-            })
+          res.status(403).json({
+            errors: [{ message: "User is not authorized to edit post" }],
+          })
         );
       }
 
@@ -237,11 +250,9 @@ export const updatePost = [
 export const createNewComment = [
   validateNewComment,
   async (req, res, next) => {
-    
     const validateErrors = validationResult(req);
 
     if (!validateErrors.isEmpty()) {
-
       return res.status(400).json({ errors: validateErrors.array() });
     }
     const postId = Number(req.body.post);

@@ -369,3 +369,29 @@ export const useDeletePost = (setLoading, setError) => {
   };
   return { deletePostById };
 };
+
+export const getPostById = (setLoading, setError) => {
+  const getPost = async (postId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`${API_LINK}/post/${postId}`);
+      return response.data;
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        const messages = err.response.data.errors.map((e) => e.msg).join("\n");
+        setError(messages);
+      } else if (err.msg) {
+        const messages = err.msg;
+        setError(messages);
+      } else {
+        setError("Could not fetch post.");
+      }
+      console.log(err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { getPost };
+}

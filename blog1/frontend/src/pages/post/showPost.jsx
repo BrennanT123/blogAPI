@@ -2,10 +2,12 @@ import postStyles from "../styles/postStyles.module.css";
 import Error from "../error/error";
 import { Link, Navigate } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchCommentUserData, fetchUserInfo } from "../../utl/hooks";
+import { fetchCommentUserData, fetchUserInfo, getPostById } from "../../utl/hooks";
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useNewComment } from "../../utl/hooks";
+
+
 function ShowPost() {
   const { loading, setLoading, error, setError, setAdmin } = useOutletContext();
   const location = useLocation();
