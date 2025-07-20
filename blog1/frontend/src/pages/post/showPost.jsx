@@ -1,20 +1,27 @@
 import postStyles from "../styles/postStyles.module.css";
 import Error from "../error/error";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchCommentUserData, fetchUserInfo, getPostById } from "../../utl/hooks";
+import {
+  fetchCommentUserData,
+  fetchUserInfo,
+  getPostById,
+} from "../../utl/hooks";
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useNewComment } from "../../utl/hooks";
 
-
 function ShowPost() {
   const { loading, setLoading, error, setError, setAdmin } = useOutletContext();
   const location = useLocation();
-  const post = location.state?.post;
+  const { postId: postIdParam } = useParams();
+  const postId = postIdParam;
+  const [post, setPost] = useState(null);
+  // const post = location.state?.post;
   const { findUser } = fetchCommentUserData(setLoading, setError);
   const [modifiedComments, setModifiedComments] = useState([]);
   const [newCommentData, setNewCommentData] = useState({
+    title: "",
     content: "",
     name: "",
   });
@@ -23,10 +30,21 @@ function ShowPost() {
   const { makeNewComment } = useNewComment(setLoading, setError);
   const navigate = useNavigate();
 
+  const { getPost } = getPostById(setLoading, setError);
+  
   useEffect(() => {
     const runEffects = async () => {
+      const tempPost = await getPost(postId);
+      if (!tempPost) {
+        setError("Post not found");
+        return;
+      }
+      console.log(tempPost);
+  
+      setPost(tempPost);
+
       const newComments = await Promise.all(
-        post.comments.map(async (comment) => {
+        tempPost.comments.map(async (comment) => {
           let commentAuthor = "guest";
           if (comment.authorId) {
             const findUserResult = await findUser(comment.authorId);
@@ -50,14 +68,13 @@ function ShowPost() {
           name: getLoggedInName,
         }));
         setLoggedInUser(getLoggedInName);
-        console.log(getLoggedInName + "here");
       } else {
         setLoggedInUser(false);
       }
     };
 
     runEffects();
-  }, [post]);
+  }, [postId]);
 
   const handleChangeComment = (e) => {
     setNewCommentData({
@@ -72,7 +89,6 @@ function ShowPost() {
 
     const content = newCommentData.content;
     const guestAuthor = newCommentData.name;
-    const postId = post.id;
     const newComment = await makeNewComment(content, guestAuthor, postId);
 
     let commentAuthor = "";
@@ -101,7 +117,11 @@ function ShowPost() {
     });
   };
 
-  if (!post) return <Error />;
+  if (loading || !post) return <span> Loading...</span>;
+  if (error) return <Error />;
+
+  if (!postId) return <span>Post not found.</span>;
+
   return (
     <div className={postStyles.postContainer}>
       <div className={postStyles.postViewContainer}>

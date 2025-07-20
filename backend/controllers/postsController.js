@@ -25,6 +25,9 @@ export const getSinglePost = async (req, res, next) => {
   try {
     const post = await prisma.post.findUnique({
       where: { id: postId },
+      include: {
+        comments: true,
+      }
     });
     res.status(200).json(post);
   } catch (err) {

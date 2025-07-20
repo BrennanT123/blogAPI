@@ -11,6 +11,6 @@ postsRouter.get("/", postCtr.getPosts);
 postsRouter.delete("/delete",authCtr.authenticateUser, authCtr.authenticateAdminStrict,postCtr.deletePost);
 postsRouter.put("/update",authCtr.authenticateUser,authCtr.authenticateAdminStrict, postCtr.updatePost);
 postsRouter.post("/newComment",authCtr.authenticateUserLoose,postCtr.createNewComment);
-postsRouter.get("/post/:postId", postCtr.getSinglePost);
+postsRouter.get("/:postId", postCtr.getSinglePost);
 
 export default postsRouter;

@@ -375,7 +375,7 @@ export const getPostById = (setLoading, setError) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${API_LINK}/post/${postId}`);
+      const response = await axios.get(`${API_LINK}/posts/${postId}`);
       return response.data;
     } catch (err) {
       if (err.response?.data?.errors) {
