@@ -2,22 +2,45 @@ import newPostStyles from "../styles/newPostStyles.module.css";
 import Error from "../error/error";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEditPost } from "../../utl/hooks";
+import { useEditPost, getPostById } from "../../utl/hooks";
 import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 
 function EditPosts() {
   const { loading, setLoading, error, setError } = useOutletContext();
   const navigate = useNavigate();
-  const location = useLocation();
-  const post = location.state?.post;
+  const { postId: postIdParam } = useParams();
+  const postId = postIdParam;
+  const [post, setPost] = useState(null);
+    const { getPost } = getPostById(setLoading, setError);
   const [editPostData, setEditPostData] = useState({
-    title: post.title,
-    content: post.content,
-    postId: post.id,
-    publishedStatus: post.published,
+    title: "",
+    content: "",
+    postId: postId,
+    image: "",
+    publishedStatus: false,
   });
 
+  useEffect(() => {
+    const runEffects = async () => {
+      const tempPost = await getPost(postId);
+      if (!tempPost) {
+        setError("Post not found");
+        return;
+      }
+
+      setPost(tempPost);
+      setEditPostData({
+        title: tempPost.title,
+        content: tempPost.content,
+        postId: tempPost.id,
+        image: tempPost.imageUrl || "",
+        publishedStatus: tempPost.published,
+      });
+    };
+
+    runEffects();
+  },[postId]);
   const { editPost } = useEditPost(setLoading, setError);
 
   const handleSubmit = async (e) => {
@@ -26,7 +49,8 @@ function EditPosts() {
       editPostData.title,
       editPostData.content,
       editPostData.postId,
-      editPostData.publishedStatus
+      editPostData.publishedStatus,
+      editPostData.image
     );
     if (newPost) {
       setEditPostData({
@@ -44,7 +68,7 @@ function EditPosts() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
-
+ if (loading || !post) return <span> Loading...</span>;
   return (
     <div className={newPostStyles.newPostContainer}>
       <h2 className={newPostStyles.pageTitle}>Create a New Post</h2>

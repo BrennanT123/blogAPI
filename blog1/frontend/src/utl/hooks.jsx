@@ -193,17 +193,14 @@ export const useNewPost = (setLoading, setError) => {
       formData.append("title", title);
       formData.append("content", content);
       if (image) {
-        formData.append("image", image); // 👈 name must match multer's .single("image")
+        formData.append("image", image);
       }
 
-      const response = await axios.post(
-        `${API_LINK}/posts/newPost`,formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${API_LINK}/posts/newPost`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setNewPost(response.data);
 
@@ -300,23 +297,23 @@ export const useEditPost = (setLoading, setError) => {
     content: "",
   });
 
-  const editPost = async (title, content, postId, publishedStatus) => {
+  const editPost = async (title, content, postId, publishedStatus, image) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${API_LINK}/posts/update`,
-        {
-          title: title,
-          content: content,
-          postId: postId,
-          published: publishedStatus,
+
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("postId", postId);
+      if (image) {
+        formData.append("image", image);
+      }
+
+      const response = await axios.put(`${API_LINK}/posts/update`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      });
 
       setEditedPost(response.data);
       return response.data;
@@ -342,7 +339,6 @@ export const useDeletePost = (setLoading, setError) => {
   const deletePostById = async (postId) => {
     try {
       const token = localStorage.getItem("token");
-      console.log(postId);
       await axios.delete(`${API_LINK}/posts/delete`, {
         data: { postId },
         headers: {
@@ -394,4 +390,4 @@ export const getPostById = (setLoading, setError) => {
     }
   };
   return { getPost };
-}
+};
