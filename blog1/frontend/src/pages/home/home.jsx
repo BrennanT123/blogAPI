@@ -16,6 +16,7 @@ function Home() {
   if (!posts || posts.length === 0) return <span>No posts published.</span>;
 
   const publishedPosts = posts.filter((post) => post.published);
+  console.log(posts);
 
   return (
     <div className={homeStyles.allPostsContainer}>
@@ -28,6 +29,7 @@ function Home() {
           key={post.id}
         >
           <h2>{post.title}</h2>
+          {post.imageUrl && <img src={post.imageUrl} alt={`${post.title} image`} className={homeStyles.postImg}/>}
           <span>
             {new Date(post.createdAt).toLocaleString("en-US", {
               year: "numeric",

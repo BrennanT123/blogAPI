@@ -32,6 +32,7 @@ function EditPosts() {
       setEditPostData({
         title: "",
         content: "",
+        imgage: "",
       });
       navigate("/");
     }
@@ -71,6 +72,30 @@ function EditPosts() {
           onChange={handleChange}
           required
         />
+
+        {post.imageUrl && (
+          <div className={newPostStyles.currentImagePreview}>
+            <p>Current image:</p>
+            <img
+              src={post.imageUrl}
+              alt="Current Post"
+              className={newPostStyles.currentImage}
+            />
+          </div>
+        )}
+        <label htmlFor="image">Image (optional)</label>
+        <input
+          name="image"
+          type="file"
+          accept="image/png, image/jpeg"
+          onChange={(e) => {
+            setEditPostData({
+              ...editPostData,
+              image: e.target.files[0],
+            });
+          }}
+        ></input>
+
         <label htmlFor="publishedStatus">Publish:</label>
         <input
           type="checkbox"
@@ -78,7 +103,6 @@ function EditPosts() {
           checked={editPostData.publishedStatus}
           onChange={handleChange}
         />
-
         <button
           type="submit"
           className={newPostStyles.submitButton}

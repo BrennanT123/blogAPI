@@ -69,3 +69,10 @@
 .submitButton:hover {
   background-color: #1d4ed8; /* Tailwind blue-700 */
 }
+
+
+.currentImage {
+  max-width: 300px;
+  border-radius: 8px;
+  margin-top: 1rem;
+}

@@ -135,6 +135,7 @@ function ShowPost() {
             minute: "2-digit",
           })}
         </span>
+        <img src={post.imageUrl} alt={`${post.title} image`} className={postStyles.postImg}/>
         <p>{post.content}</p>
       </div>
 

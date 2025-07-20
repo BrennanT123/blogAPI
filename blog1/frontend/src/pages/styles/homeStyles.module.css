@@ -52,3 +52,12 @@
   line-height: 1.5;
   word-wrap: break-word;
 }
+
+
+.postImg
+{
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 1rem;
+}

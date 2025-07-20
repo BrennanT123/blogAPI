@@ -51,7 +51,6 @@ export const getPosts = async (req, res, next) => {
       },
       include: {
         author: true,
-        comments: true,
       },
     });
     if (posts.length === 0) {
